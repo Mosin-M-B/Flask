@@ -1,0 +1,37 @@
+# Python
+*.pyc
+*.pyo
+*.pyd
+__pycache__
+instance
+.env
+
+# Flask
+*.db
+*.sqlite3
+*.log
+*.bak
+*.swp
+*.swo
+
+# MongoDB
+*.mongodb
+*.dump
+
+# Virtual Environment
+venv/
+.env/
+
+# Node.js (for React frontend)
+node_modules/
+
+# Vite (build output for React)
+dist/
+
+# Logs
+logs/
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
