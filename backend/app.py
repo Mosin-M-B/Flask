@@ -42,14 +42,7 @@ def login():
     data = request.get_json()
     
     # Check if the email exists in the database
-    user = users.find_one({
-    "$or": [
-        {"username": data['username']},
-        {"email": data['email']},
-    ]
-    })
-    
-    print(user)
+    user = users.find_one({"email": data['email']})
     
     if user:
         # Check if the password matches (hashed password comparison)
