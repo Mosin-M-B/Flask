@@ -1,11 +1,13 @@
 // src/components/Signup.js
 import React, { useState } from 'react'
 import axios from 'axios'
+import { Navigate } from 'react-router-dom'
 
 const Signup = () => {
   const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [mobile, setMobile] = useState('')
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
 
@@ -24,14 +26,19 @@ const Signup = () => {
     }
 
     try {
-      const response = await axios.post('http://localhost:5000/signup', { username, email, password })
+      const response = await axios.post('http://localhost:5000/signup', { username, email, password , mobile })
       setSuccess(response.data.msg)
       setUsername('')
       setEmail('')
       setPassword('')
+      setMobile('')
       setError('')
     } catch (error) {
       setError('Signup failed, please try again')
+    }
+    if (success) {
+      // Redirect to the login page on successful signup
+      window.location.href = '/'
     }
   }
 
@@ -56,6 +63,13 @@ const Signup = () => {
           placeholder="Email"
           className="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
+          <input
+            type="number"
+            value={mobile}
+            onChange={(e) => setMobile(e.target.value)}
+            placeholder="Mobile Number"
+            className="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
         <input
           type="password"
           value={password}

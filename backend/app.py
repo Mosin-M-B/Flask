@@ -16,6 +16,10 @@ client = MongoClient(config.MONGO_URI)
 db = client['user_db']
 users = db['users']
 
+db.users.create_index("email", unique=True)
+db.users.create_index("username", unique=True)
+
+
 @app.route('/signup', methods=['POST'])
 def signup():
     data = request.get_json()
@@ -24,7 +28,10 @@ def signup():
     user = {
         "usename": data['username'],
         "email": data['email'],
-        "password": hashed_password
+        "password": hashed_password,
+        "mobile": data['mobile'],
+        "created_at": datetime.utcnow(),
+
     }
     users.insert_one(user)
     return jsonify({"msg": "User created"}), 201
@@ -35,7 +42,14 @@ def login():
     data = request.get_json()
     
     # Check if the email exists in the database
-    user = users.find_one({"email": data['email']})
+    user = users.find_one({
+    "$or": [
+        {"username": data['username']},
+        {"email": data['email']},
+    ]
+    })
+    
+    print(user)
     
     if user:
         # Check if the password matches (hashed password comparison)
