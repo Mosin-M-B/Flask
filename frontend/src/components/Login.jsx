@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { Button } from "@material-tailwind/react";
+import { Button, Typography } from "@material-tailwind/react";
 import { Input } from "@material-tailwind/react";
 
 const Login = () => {
@@ -79,17 +79,19 @@ const Login = () => {
           Login
         </Button>
         {/* Sign Up Link */}
-        <div className="mt-4 text-center">
-          <p className="text-sm">
-            Don’t have an account?{" "}
-            <span
-              onClick={() => navigate("/signup")}
-              className="text-blue-500 hover:underline cursor-pointer"
-            >
-              Sign up
-            </span>
-          </p>
-        </div>
+        
+        <Typography variant="small" className="mt-6 flex justify-center">
+          already have an account?
+          <Typography
+            as="a"
+            onClick={() => navigate("/signup")}
+            variant="small"
+            color="blue-gray"
+            className="ml-1 font-bold cursor-pointer"
+          >
+            Sign up
+          </Typography>
+        </Typography>
       </div>
     </div>
   );
