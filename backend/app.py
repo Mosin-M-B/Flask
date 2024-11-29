@@ -16,9 +16,71 @@ bcrypt = Bcrypt(app)
 client = MongoClient(config.MONGO_URI)
 db = client['user_db']
 users = db['users']
+content = db['content']
 
 db.users.create_index("email", unique=True)
 db.users.create_index("username", unique=True)
+
+
+app.config['UPLOAD_FOLDER'] = 'uploads'
+app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif', 'pdf'}
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
+
+
+# Route to upload files
+@app.route('/upload', methods=['POST'])
+@token_required
+def upload_file(current_user):
+    if 'file' not in request.files:
+        return jsonify({"msg": "No file part"}), 400
+    file = request.files['file']
+    
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(file_path)
+
+        # Insert file information into the database
+        file_data = {
+            "user_id": current_user['_id'],
+            "username": current_user['username'],
+            "email": current_user['email'],
+            "file_name": filename,
+            "file_path": file_path,
+            "file_type": "image" if filename.split('.')[-1].lower() in ['png', 'jpg', 'jpeg', 'gif'] else "pdf"
+        }
+
+        content.insert_one(file_data)
+
+        return jsonify({"success": True, "msg": "File uploaded successfully"}), 200
+    return jsonify({"msg": "Invalid file type"}), 400
+
+# Route to get uploaded files
+@app.route('/get-content', methods=['GET'])
+@token_required
+def get_content(current_user):
+    files = content.find({"user_id": current_user['_id']})
+    file_list = []
+    for file in files:
+        file_data = {
+            "name": file["file_name"],
+            "url": file["file_path"],
+            "type": file["file_type"]
+        }
+        file_list.append(file_data)
+    
+    return jsonify({"files": file_list}), 200
+
+# Start the Flask app
+
+
+
+
+
+
+
 
 # Decorator to check if the user is authenticated
 def token_required(f):
