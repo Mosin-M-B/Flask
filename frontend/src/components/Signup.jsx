@@ -1,7 +1,7 @@
 // src/components/Signup.js
 import React, { useState } from 'react'
 import axios from 'axios'
-import { Navigate } from 'react-router-dom'
+import { useNavigate } from "react-router-dom";
 
 const Signup = () => {
   const [username, setUsername] = useState('')
@@ -10,7 +10,8 @@ const Signup = () => {
   const [mobile, setMobile] = useState('')
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
-
+  const navigate = useNavigate();
+  
   const handleSignup = async () => {
     // Basic client-side validation
     if (!username || !email || !password) {
@@ -83,6 +84,17 @@ const Signup = () => {
         >
           Signup
         </button>
+        <div className="mt-4 text-center">
+          <p className="text-sm">
+            already have an account?{" "}
+            <span
+              onClick={() => navigate("/")}
+              className="text-blue-500 hover:underline cursor-pointer"
+            >
+              Login
+            </span>
+          </p>
+        </div>
       </div>
     </div>
   )

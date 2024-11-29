@@ -23,18 +23,36 @@ db.users.create_index("username", unique=True)
 @app.route('/signup', methods=['POST'])
 def signup():
     data = request.get_json()
-    print("Data",data)
+
+    # Validate required fields
+    required_fields = ['username', 'email', 'password', 'mobile']
+    for field in required_fields:
+        if field not in data or not data[field].strip():
+            return jsonify({"msg": f"{field} is required"}), 400
+
+    # Check for existing username or email
+    existing_user = users.find_one({"$or": [{"username": data['username']}, {"email": data['email']}]})
+    if existing_user:
+        return jsonify({"msg": "Username or email already exists"}), 400
+
+    # Hash the password
     hashed_password = bcrypt.generate_password_hash(data['password']).decode('utf-8')
+
+    # Create the user object
     user = {
-        "usename": data['username'],
+        "username": data['username'],
         "email": data['email'],
         "password": hashed_password,
-        "mobile": data['mobile'],
-        "created_at": datetime.utcnow(),
-
+        "mobile": data['mobile']
     }
-    users.insert_one(user)
-    return jsonify({"msg": "User created"}), 201
+
+    # Insert the user into the database
+    try:
+        users.insert_one(user)
+        return jsonify({"msg": "User created successfully"}), 201
+    except Exception as e:
+        return jsonify({"msg": "Error creating user", "error": str(e)}), 500
+
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -42,8 +60,13 @@ def login():
     data = request.get_json()
     
     # Check if the email exists in the database
-    user = users.find_one({"email": data['email']})
-    
+    user = users.find_one({
+    "$or": [
+        {"email": data['email']},
+        {"username": data['username']}
+    ]
+    })
+
     if user:
         # Check if the password matches (hashed password comparison)
         if bcrypt.check_password_hash(user['password'], data['password']):

@@ -9,7 +9,9 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate(); // Use navigate hook to redirect
+
   console.log(email, username, password);
+
   const handleLogin = async () => {
     try {
       const response = await axios.post("http://localhost:5000/login", {
@@ -66,6 +68,18 @@ const Login = () => {
         >
           Login
         </button>
+        {/* Sign Up Link */}
+        <div className="mt-4 text-center">
+          <p className="text-sm">
+            Don’t have an account?{" "}
+            <span
+              onClick={() => navigate("/signup")}
+              className="text-blue-500 hover:underline cursor-pointer"
+            >
+              Sign up
+            </span>
+          </p>
+        </div>
       </div>
     </div>
   );
