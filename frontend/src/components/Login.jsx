@@ -2,6 +2,9 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import toast from "react-hot-toast";
+import { Button } from "@material-tailwind/react";
+import { Input } from "@material-tailwind/react";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -12,16 +15,19 @@ const Login = () => {
 
   console.log(email, username, password);
 
+  const id = username || email;
+
   const handleLogin = async () => {
-    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/
-    if (!passwordRegex.test(password)) {
-      setError('Password must be at least 8 characters long and contain at least one letter and one number')
-      return
+    if (!id || !password) {
+      toast.error("All fields are required!");
+      return;
     }
-    const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/
-    if (!emailRegex.test(email)) {
-      setError('Please enter a valid email address')
-      return
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+    if (!passwordRegex.test(password)) {
+      toast.error(
+        "Password must be at least 8 characters long and contain at least one letter and one number"
+      );
+      return;
     }
     try {
       const response = await axios.post("http://localhost:5000/login", {
@@ -32,23 +38,27 @@ const Login = () => {
       if (response.data.success) {
         // Redirect to the home page on successful login
         navigate("/home");
+        toast.success("Login Successfully!!");
       } else {
-        setError("Invalid credentials");
+        toast.error("Invalid credentials");
       }
     } catch (error) {
-      setError("Login failed");
+      toast.error("Invalid credentials");
     }
   };
 
   return (
     <div className="flex justify-center items-center h-screen bg-gray-100">
-      <div className="w-full max-w-sm p-8 bg-white shadow-md rounded-lg">
+      <div className="w-full max-w-sm p-8 bg-white shadow-md rounded-lg flex flex-col gap-6">
         <h2 className="text-2xl font-bold text-center mb-6">Login</h2>
-        {error && (
+        {/* {error && (
           <p className="text-red-500 text-sm text-center mb-4">{error}</p>
-        )}
-        <input
+        )} */}
+
+        <Input
           type="text"
+          size="lg"
+          label="Email or Username"
           value={email || username}
           onChange={(e) => {
             const value = e.target.value;
@@ -61,23 +71,13 @@ const Login = () => {
               setEmail(""); // Clear email
             }
           }}
-          placeholder="Email or Username"
-          className="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
 
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Password"
-          className="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <button
-          onClick={handleLogin}
-          className="w-full p-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
+        <Input size="lg" label="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+
+        <Button fullWidth onClick={handleLogin}>
           Login
-        </button>
+        </Button>
         {/* Sign Up Link */}
         <div className="mt-4 text-center">
           <p className="text-sm">

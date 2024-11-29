@@ -1,105 +1,155 @@
 // src/components/Signup.js
-import React, { useState } from 'react'
-import axios from 'axios'
+import React, { useState } from "react";
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+import { Button, Input } from "@material-tailwind/react";
 
 const Signup = () => {
-  const [username, setUsername] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [mobile, setMobile] = useState('')
-  const [error, setError] = useState('')
-  const [success, setSuccess] = useState('')
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [mobile, setMobile] = useState("");
+  const [success, setSuccess] = useState("");
   const navigate = useNavigate();
-  
+
   const handleSignup = async () => {
     // Basic client-side validation
-    if (!username || !email || !password) {
-      setError('All fields are required!')
-      return
+    if (!username || !email || !password || !mobile) {
+      toast.error("All fields are required!",{
+        icon: '😵',
+        style: {
+          borderRadius: '10px',
+          background: '#333',
+          color: '#fff',
+        },
+      });
+      return;
     }
 
     // Check for valid email format
-    const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/
+    const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
     if (!emailRegex.test(email)) {
-      setError('Please enter a valid email address')
-      return
+      toast.error("Please enter a valid email address",{
+        icon: '😵‍💫',
+        style: {
+          borderRadius: '10px',
+          background: '#333',
+          color: '#fff',
+        },
+      });
+      return;
     }
 
     // Check for valid mobile number format
-    const mobileRegex = /^[0-9]{10}$/
+    const mobileRegex = /^[0-9]{10}$/;
     if (!mobileRegex.test(mobile)) {
-      setError('Please enter a valid 10-digit mobile number')
-      return
+      toast.error("Please enter a valid 10-digit mobile number",{
+        icon: '😵‍💫',
+        style: {
+          borderRadius: '10px',
+          background: '#333',
+          color: '#fff',
+        },
+      });
+      
+      return;
     }
 
     // Check for valid password format
-    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
     if (!passwordRegex.test(password)) {
-      setError('Password must be at least 8 characters long and contain at least one letter and one number')
-      return
+      toast.error(
+        "Password must be at least 8 characters long and contain at least one letter and one number"
+      );
+      return;
     }
 
-
-
     try {
-      const response = await axios.post('http://localhost:5000/signup', { username, email, password , mobile })
-      setSuccess(response.data.msg)
-      setUsername('')
-      setEmail('')
-      setPassword('')
-      setMobile('')
-      setError('')
+      const response = await axios.post("http://localhost:5000/signup", {
+        username,
+        email,
+        password,
+        mobile,
+      });
+      setSuccess(response.data.msg);
+      setUsername("");
+      setEmail("");
+      setPassword("");
+      setMobile("");
+      setError("");
+      toast.success("Account created Successfully !!",{
+        icon: '🎉',
+        style: {
+          borderRadius: '10px',
+          background: '#333',
+          color: '#fff',
+        },
+      });
     } catch (error) {
-      setError('Signup failed, please try again')
+      toast.error("Signup failed, please try again",{
+        icon: '😵‍💫',
+        style: {
+          borderRadius: '10px',
+          background: '#333',
+          color: '#fff',
+        },
+      });
     }
     if (success) {
       // Redirect to the login page on successful signup
-      window.location.href = '/'
+      toast.success("Account created Successfully !!",{
+        icon: '🎉',
+        style: {
+          borderRadius: '10px',
+          background: '#333',
+          color: '#fff',
+        },
+      });
+      navigate("/home");
     }
-  }
+  };
 
   return (
     <div className="flex justify-center items-center h-screen ">
-      <div className="w-full max-w-sm p-8 bg-white shadow-md rounded-lg">
+      <div className="w-full max-w-sm p-8 bg-white shadow-md rounded-lg flex flex-col gap-6">
         <h2 className="text-2xl font-bold text-center mb-6">Signup</h2>
-        {error && <p className="text-red-500 text-sm text-center mb-4">{error}</p>}
-        {success && <p className="text-green-500 text-sm text-center mb-4">{success}</p>}
-
-        <input
+        <Input
           type="text"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          placeholder="Username"
-          className="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          size="lg"
+          label="Username"
         />
-        <input
+
+        <Input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="Email"
-          className="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          size="lg"
+          label="Email"
         />
-          <input
-            type="number"
-            value={mobile}
-            onChange={(e) => setMobile(e.target.value)}
-            placeholder="Mobile Number"
-            className="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        <input
+    
+        <Input
+          type="text"
+          maxLength={10}
+          value={mobile}
+          onChange={(e) => setMobile(e.target.value)}
+          size="lg"
+          label="Mobile Number"
+        />
+        
+        <Input
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          placeholder="Password"
-          className="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          size="lg"
+          label="Password"
         />
-        <button
-          onClick={handleSignup}
-          className="w-full p-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
+
+        <Button fullWidth onClick={handleSignup}>
           Signup
-        </button>
+        </Button>
         <div className="mt-4 text-center">
           <p className="text-sm">
             already have an account?{" "}
@@ -113,7 +163,7 @@ const Signup = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Signup
+export default Signup;
