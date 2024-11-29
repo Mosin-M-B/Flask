@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { Button, Input, Typography } from "@material-tailwind/react";
 
-const Signup = () => {
+const Signup = ({ name, setType }) => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -72,6 +72,8 @@ const Signup = () => {
         password,
         mobile,
       });
+      console.log(response.data.msg);
+      
       setSuccess(response.data.msg);
       setUsername("");
       setEmail("");
@@ -87,7 +89,7 @@ const Signup = () => {
         },
       });
     } catch (error) {
-      toast.error("Signup failed, please try again",{
+      toast.error("username or email already exists",{
         icon: '😵‍💫',
         style: {
           borderRadius: '10px',
@@ -95,6 +97,8 @@ const Signup = () => {
           color: '#fff',
         },
       });
+      
+      
     }
     if (success) {
       // Redirect to the login page on successful signup
@@ -111,9 +115,9 @@ const Signup = () => {
   };
 
   return (
-    <div className="flex justify-center items-center h-screen ">
+   
       <div className="w-full max-w-sm p-8 bg-white shadow-md rounded-lg flex flex-col gap-6">
-        <h2 className="text-2xl font-bold text-center mb-6">Signup</h2>
+        <h2 className="text-2xl font-bold text-center mb-6">SignUp</h2>
         <Input
           type="text"
           value={username}
@@ -155,7 +159,7 @@ const Signup = () => {
           Don&apos;t have an account?
           <Typography
             as="a"
-            onClick={() => navigate("/")}
+            onClick={() => setType("login")}
             variant="small"
             color="blue-gray"
             className="ml-1 font-bold cursor-pointer"
@@ -164,7 +168,7 @@ const Signup = () => {
           </Typography>
         </Typography>
       </div>
-    </div>
+
   );
 };
 

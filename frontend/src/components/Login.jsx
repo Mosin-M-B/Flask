@@ -1,98 +1,111 @@
-// src/components/Login.js
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { Button, Typography } from "@material-tailwind/react";
-import { Input } from "@material-tailwind/react";
+import { Button, Typography, Input } from "@material-tailwind/react";
 
-const Login = () => {
+const Login = ({ setType }) => {
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const navigate = useNavigate(); // Use navigate hook to redirect
 
-  console.log(email, username, password);
-
-  const id = username || email;
+  const navigate = useNavigate();
 
   const handleLogin = async () => {
-    if (!id || !password) {
-      toast.error("All fields are required!");
+    if (!email && !username) {
+      toast.error("Email or Username is required!");
       return;
     }
-    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
-    if (!passwordRegex.test(password)) {
-      toast.error(
-        "Password must be at least 8 characters long and contain at least one letter and one number"
-      );
+    if (!password) {
+      toast.error("Password is required!");
       return;
     }
     try {
-      const response = await axios.post("http://localhost:5000/login", {
+      const response = await axios.post('http://localhost:5000/login', {
         username,
         email,
         password,
       });
       if (response.data.success) {
-        // Redirect to the home page on successful login
+        // Store the token in local storage
+        localStorage.setItem('token', response.data.token);
         navigate("/home");
-        toast.success("Login Successfully!!");
+        toast.success("Account Logged In Successfully !!",{
+          icon: '🎉',
+          style: {
+            borderRadius: '10px',
+            background: '#333',
+            color: '#fff',
+          },
+        });
       } else {
-        toast.error("Invalid credentials");
+        toast.error("Invalid credentials",{
+          icon: '😵‍💫',
+          style: {
+            borderRadius: '10px',
+            background: '#333',
+            color: '#fff',
+          },
+        });
       }
     } catch (error) {
-      toast.error("Invalid credentials");
+      toast.error("Login failed",{
+        icon: '😵‍💫',
+        style: {
+          borderRadius: '10px',
+          background: '#333',
+          color: '#fff',
+        },
+      });
     }
   };
+  
 
   return (
-    <div className="flex justify-center items-center h-screen bg-gray-100">
-      <div className="w-full max-w-sm p-8 bg-white shadow-md rounded-lg flex flex-col gap-6">
-        <h2 className="text-2xl font-bold text-center mb-6">Login</h2>
-        {/* {error && (
-          <p className="text-red-500 text-sm text-center mb-4">{error}</p>
-        )} */}
-
-        <Input
-          type="text"
-          size="lg"
-          label="Email or Username"
-          value={email || username}
-          onChange={(e) => {
-            const value = e.target.value;
-            // Check if the value contains '@' to decide if it's an email or username
-            if (value.includes("@")) {
-              setEmail(value); // Set it as email
-              setUsername(""); // Clear username
-            } else {
-              setUsername(value); // Set it as username
-              setEmail(""); // Clear email
-            }
-          }}
-        />
-
-        <Input size="lg" label="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-
-        <Button fullWidth onClick={handleLogin}>
-          Login
-        </Button>
-        {/* Sign Up Link */}
-        
-        <Typography variant="small" className="mt-6 flex justify-center">
-          already have an account?
-          <Typography
-            as="a"
-            onClick={() => navigate("/signup")}
-            variant="small"
-            color="blue-gray"
-            className="ml-1 font-bold cursor-pointer"
-          >
-            Sign up
-          </Typography>
+    <div className="w-full max-w-sm p-8 bg-white shadow-md rounded-lg flex flex-col gap-6">
+      <h2 className="text-2xl font-bold text-center mb-6">Login</h2>
+      <Input
+        type="text"
+        size="lg"
+        label="Email or Username"
+        value={email || username}
+        onChange={(e) => {
+          const value = e.target.value;
+          if (value.includes("@")) {
+            setEmail(value);
+            setUsername("");
+          } else {
+            setUsername(value);
+            setEmail("");
+          }
+        }}
+      />
+      <Input
+        size="lg"
+        label="Password"
+        type="password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+      <Button fullWidth onClick={handleLogin}>
+        Login
+      </Button>
+      <Typography variant="small" className="mt-6 flex justify-center">
+        Don’t have an account?
+        <Typography
+          as="a"
+          onClick={() => {
+            setType("signup");
+            console.log("setType");
+            
+          }} // Call setType to switch tab
+          variant="small"
+          color="blue"
+          className="ml-1 font-bold cursor-pointer"
+        >
+          Sign up
         </Typography>
-      </div>
+      </Typography>
     </div>
   );
 };

@@ -1,0 +1,45 @@
+import {
+    Tabs,
+    TabsHeader,
+    TabsBody,
+    Tab,
+    TabPanel,
+  } from "@material-tailwind/react";
+  import Login from "./Login";
+  import Signup from "./Signup";
+  import { useState } from "react";
+  
+  export function Tabss() {
+    const [type, setType] = useState("login"); // State for active tab
+  
+    return (
+      <div className="flex justify-center items-center h-screen bg-gray-100 w-full">
+        {/* Tabs Component */}
+        <Tabs
+          value={type} // Controlled value for Tabs
+          onChange={(value) => setType(value)} // Update the state when Tabs change
+          className="h-[80vh] xl:w-[50%] sm:w-[90%]"
+        >
+          {/* Tabs Header */}
+          <TabsHeader className="z-10 sticky top-0 bg-white shadow-md">
+            {/* Individual Tabs */}
+            <Tab value="login">Log In</Tab>
+            <Tab value="signup">Sign Up</Tab>
+          </TabsHeader>
+  
+          {/* Tabs Body */}
+          <TabsBody>
+            <TabPanel value="login">
+              {/* Pass setType as a prop to Login */}
+              <Login setType={setType} />
+            </TabPanel>
+            <TabPanel value="signup">
+              {/* Pass setType as a prop to Signup */}
+              <Signup setType={setType} />
+            </TabPanel>
+          </TabsBody>
+        </Tabs>
+      </div>
+    );
+  }
+  

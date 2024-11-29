@@ -6,14 +6,14 @@ import Signup from "./components/Signup";
 import Home from "./components/Home";
 import toast, { Toaster } from "react-hot-toast";
 import { ThemeProvider } from "@material-tailwind/react";
+import { Tabss } from "./components/Tabss";
 function App() {
   return (
     <>
     <ThemeProvider>
       <Router>
         <Routes>
-          <Route path="/" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
+          <Route path="/" element={<Tabss/>} />
           <Route path="/home" element={<Home />} />
         </Routes>
       </Router>
