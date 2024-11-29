@@ -1,7 +1,7 @@
 // src/components/Signup.js
 import React, { useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+
 import toast from "react-hot-toast";
 import { Button, Input, Typography } from "@material-tailwind/react";
 
@@ -11,7 +11,7 @@ const Signup = ({ name, setType }) => {
   const [password, setPassword] = useState("");
   const [mobile, setMobile] = useState("");
   const [success, setSuccess] = useState("");
-  const navigate = useNavigate();
+ 
 
   const handleSignup = async () => {
     // Basic client-side validation
@@ -79,7 +79,6 @@ const Signup = ({ name, setType }) => {
       setEmail("");
       setPassword("");
       setMobile("");
-      setError("");
       toast.success("Account created Successfully !!",{
         icon: '🎉',
         style: {
@@ -89,6 +88,8 @@ const Signup = ({ name, setType }) => {
         },
       });
     } catch (error) {
+      console.log(error);
+      
       toast.error("username or email already exists",{
         icon: '😵‍💫',
         style: {
@@ -110,7 +111,7 @@ const Signup = ({ name, setType }) => {
           color: '#fff',
         },
       });
-      navigate("/home");
+     
     }
   };
 
