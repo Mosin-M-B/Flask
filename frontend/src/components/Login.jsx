@@ -13,6 +13,16 @@ const Login = () => {
   console.log(email, username, password);
 
   const handleLogin = async () => {
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/
+    if (!passwordRegex.test(password)) {
+      setError('Password must be at least 8 characters long and contain at least one letter and one number')
+      return
+    }
+    const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/
+    if (!emailRegex.test(email)) {
+      setError('Please enter a valid email address')
+      return
+    }
     try {
       const response = await axios.post("http://localhost:5000/login", {
         username,

@@ -26,6 +26,22 @@ const Signup = () => {
       return
     }
 
+    // Check for valid mobile number format
+    const mobileRegex = /^[0-9]{10}$/
+    if (!mobileRegex.test(mobile)) {
+      setError('Please enter a valid 10-digit mobile number')
+      return
+    }
+
+    // Check for valid password format
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/
+    if (!passwordRegex.test(password)) {
+      setError('Password must be at least 8 characters long and contain at least one letter and one number')
+      return
+    }
+
+
+
     try {
       const response = await axios.post('http://localhost:5000/signup', { username, email, password , mobile })
       setSuccess(response.data.msg)
