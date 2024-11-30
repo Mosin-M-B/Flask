@@ -7,6 +7,15 @@ from datetime import datetime, timedelta
 import jwt
 from functools import wraps
 from bson import ObjectId  # Import ObjectId to convert the user_id for MongoDB query
+from werkzeug.utils import secure_filename
+import os
+from flask import Flask, request, jsonify
+from werkzeug.utils import secure_filename
+import jwt
+from functools import wraps
+from pymongo import MongoClient
+from bson.objectid import ObjectId
+import logging
 
 app = Flask(__name__)
 CORS(app)
@@ -18,20 +27,21 @@ db = client['user_db']
 users = db['users']
 content = db['content']
 
+app.config['JWT_SECRET'] = 'mosin'
+
 db.users.create_index("email", unique=True)
 db.users.create_index("username", unique=True)
 
 
-app.config['UPLOAD_FOLDER'] = 'uploads'
+UPLOAD_FOLDER = 'uploads'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif', 'pdf'}
-
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 
-# Route to upload files
 
-# Start the Flask app
+
+
 
 
 
@@ -55,6 +65,9 @@ def token_required(f):
             return jsonify({"msg": "Token is invalid!"}), 403
         return f(current_user, *args, **kwargs)
     return decorated_function
+
+
+
 
 @app.route('/signup', methods=['POST'])
 def signup():
@@ -112,6 +125,7 @@ def login():
                 config.JWT_SECRET,  # Secret key from your config
                 algorithm="HS256"
             )
+            print(token)
             return jsonify({"success": True, "msg": "Login successful", "token": token}), 200
         else:
             # Invalid password
@@ -137,7 +151,10 @@ def get_user_info(current_user):
 
 
 
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
 
+# Route to upload files
 @app.route('/upload', methods=['POST'])
 @token_required
 def upload_file(current_user):
@@ -146,7 +163,7 @@ def upload_file(current_user):
     file = request.files['file']
     
     if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
+        filename = secure_filename(file.filename)  # Now this should work
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(file_path)
 
@@ -180,10 +197,6 @@ def get_content(current_user):
         file_list.append(file_data)
     
     return jsonify({"files": file_list}), 200
-
-
-
-
 
 if __name__ == '__main__':
     app.run(debug=True)
