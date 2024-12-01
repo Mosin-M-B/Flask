@@ -77,7 +77,7 @@ export const Profile = () => {
           </div>
           <div>
             <h2 className="font-bold">{userInfo?.fullName}</h2>
-            <p>{userInfo?.bio}</p>
+            <p className="w-1/2">{userInfo?.bio}</p>
             <a href="#" className="text-blue-600">{userInfo?.website}</a>
           </div>
         </div>
