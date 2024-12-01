@@ -2,6 +2,7 @@ import { Search, LogOut } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
+import Logo from "./Logo";
 
 export const Header = () => {
   const tokens = localStorage.getItem("token");
@@ -20,8 +21,8 @@ export const Header = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex-shrink-0 flex items-center">
-            <Link href="/" className="text-xl font-bold flex items-center">
-              Ocean Notes
+            <Link href="/" className="text-xl font-bold flex items-center justify-between gap-4">
+              <Logo/>Ocean Notes
             </Link>
           </div>
           <div className="flex items-center">

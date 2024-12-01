@@ -9,7 +9,7 @@ const navItems = [
   { icon: Film, label: 'Reels', href: '/reels' },
   { icon: Heart, label: 'Notifications', href: '/notifications' },
   { icon: PlusSquare, label: 'Create', href: '/create' },
-  { icon: User, label: 'Profile', href: '/profile' },
+  { icon: User, label: 'Profile', href: '/account' },
 ]
 
 export const Sidebar=()=> {

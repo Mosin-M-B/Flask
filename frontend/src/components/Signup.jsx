@@ -156,7 +156,7 @@ const Signup = ({ name, setType }) => {
           Signup
         </Button>
         
-        <Typography variant="small" className="mt-6 flex justify-center">
+        {/* <Typography variant="small" className="mt-6 flex justify-center">
           Don&apos;t have an account?
           <Typography
             as="a"
@@ -167,7 +167,7 @@ const Signup = ({ name, setType }) => {
           >
             Login
           </Typography>
-        </Typography>
+        </Typography> */}
       </div>
 
   );

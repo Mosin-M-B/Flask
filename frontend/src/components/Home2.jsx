@@ -4,7 +4,7 @@ import { Nav } from './Navbar'
 import { Sidebar } from './Sidebar'
 import SuggestedUsers from './SuggestedUsers'
 
-export default function Home2() {
+export const Home2=()=> {
   return (
     <>
     

@@ -1,22 +1,18 @@
 from flask import Flask, request, jsonify
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
-from pymongo import MongoClient
 import config  # For MongoDB URI configuration
 from datetime import datetime, timedelta
 import jwt
 from functools import wraps
 from bson import ObjectId  # Import ObjectId to convert the user_id for MongoDB query
-from werkzeug.utils import secure_filename
 import os
-from flask import Flask, request, jsonify
-from werkzeug.utils import secure_filename
-import jwt
-from functools import wraps
 from pymongo import MongoClient
 from bson.objectid import ObjectId
-import logging
 
+from werkzeug.utils import secure_filename
+from werkzeug.datastructures import FileStorage
+from flask_uploads import UploadSet, configure_uploads, IMAGES
 app = Flask(__name__)
 CORS(app)
 bcrypt = Bcrypt(app)
@@ -28,6 +24,7 @@ users = db['users']
 content = db['content']
 
 app.config['JWT_SECRET'] = 'mosin'
+photos = UploadSet("photos", IMAGES)
 
 db.users.create_index("email", unique=True)
 db.users.create_index("username", unique=True)
@@ -143,7 +140,11 @@ def get_user_info(current_user):
             "user": {
                 "username": current_user["username"],
                 "email": current_user["email"],
-                "mobile": current_user["mobile"]
+                "mobile": current_user["mobile"],
+                "bio": current_user["bio"],
+                "website": current_user["website"],
+                "gender": current_user["gender"],
+                "fullName": current_user["fullName"],
             }
         }), 200
     return jsonify({"msg": "User not found!"}), 404
@@ -197,6 +198,52 @@ def get_content(current_user):
         file_list.append(file_data)
     
     return jsonify({"files": file_list}), 200
+@app.route('/update-profile', methods=['POST'])
+def update_profile():
+    try:
+        # Get the data from the form
+        username = request.form.get('username')
+        full_name = request.form.get('fullName')
+        website = request.form.get('website')
+        bio = request.form.get('bio')
+        email = request.form.get('email')
+        phone = request.form.get('phone')
+        gender = request.form.get('gender')
+        
+        print(username, full_name, website, bio, email, phone, gender)
+
+        existing_user = users.find_one({"username": username})
+
+        if not existing_user:
+            return jsonify({"error": "User name is alrady taken."}), 404
+
+        # Update the user's profile
+        users.update_one(
+            {"username": username},
+            {
+                "$set": {
+                    "fullName": full_name,
+                    "website": website,
+                    "bio": bio,
+                    "email": email,
+                    "phone": phone,
+                    "gender": gender
+                }
+            }
+        )
+        # Handle file upload (avatar)
+        avatar = request.files.get('file')  # Get the uploaded file
+
+        if avatar and allowed_file(avatar.filename):
+            filename = secure_filename(avatar.filename)  # Secure the filename
+            avatar.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))  # Save the file
+
+
+        return jsonify({"msg": "Profile updated successfully!"}), 200
+
+    except Exception as e:
+        print(f"Error: {e}")  # Log the error for debugging
+        return jsonify({"error": "Failed to update profile."}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -90,7 +90,7 @@ const Login = ({ setType }) => {
       <Button fullWidth onClick={handleLogin}>
         Login
       </Button>
-      <Typography variant="small" className="mt-6 flex justify-center">
+      {/* <Typography variant="small" className="mt-6 flex justify-center">
         Don’t have an account?
         <Typography
           as="a"
@@ -105,7 +105,7 @@ const Login = ({ setType }) => {
         >
           Sign up
         </Typography>
-      </Typography>
+      </Typography> */}
     </div>
   );
 };
