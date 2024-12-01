@@ -145,12 +145,10 @@ def get_user_info(current_user):
                 "website": current_user["website"],
                 "gender": current_user["gender"],
                 "fullName": current_user["fullName"],
+                
             }
         }), 200
     return jsonify({"msg": "User not found!"}), 404
-
-
-
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
