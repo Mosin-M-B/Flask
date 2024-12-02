@@ -1,7 +1,6 @@
 import Feed from './Feed'
 import { Header } from './Header'
 import { Nav } from './Navbar'
-import { Sidebar } from './Sidebar'
 import SuggestedUsers from './SuggestedUsers'
 
 export const Home2=()=> {

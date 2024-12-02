@@ -138,14 +138,13 @@ def get_user_info(current_user):
     if current_user:
         return jsonify({
             "user": {
-                "username": current_user["username"],
-                "email": current_user["email"],
-                "mobile": current_user["mobile"],
-                "bio": current_user["bio"],
-                "website": current_user["website"],
-                "gender": current_user["gender"],
-                "fullName": current_user["fullName"],
-                
+                "username": current_user.get("username", ""),
+                "email": current_user.get("email", ""),
+                "mobile": current_user.get("mobile", ""),
+                "bio": current_user.get("bio", ""),
+                "website": current_user.get("website", ""),
+                "gender": current_user.get("gender", ""),
+                "fullName": current_user.get("fullName", ""),
             }
         }), 200
     return jsonify({"msg": "User not found!"}), 404
@@ -194,8 +193,8 @@ def get_content(current_user):
             "type": file["file_type"]
         }
         file_list.append(file_data)
-    
     return jsonify({"files": file_list}), 200
+
 @app.route('/update-profile', methods=['POST'])
 def update_profile():
     try:
