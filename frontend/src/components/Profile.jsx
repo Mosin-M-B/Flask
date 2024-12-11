@@ -1,16 +1,19 @@
 import { useEffect, useState } from "react";
-
 import { Avatar, Button, Card, Spinner } from "@material-tailwind/react";
 import { Grid, MessageCircle, Settings } from "lucide-react";
 import { Img } from "react-image";
 import { useNavigate } from "react-router-dom";
 
-import { fetchUserInfo } from "../store/userService";
+import { fetchImages, fetchUserInfo } from "../store/userService";
+
 export const Profile = () => {
   const [userInfo, setUserInfo] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const tokens = localStorage.getItem("token");
   const navigate = useNavigate();
+  const [allImages, setAllImages] = useState([]);
+  const [modalOpen, setModalOpen] = useState(false); // State for controlling the modal visibility
+  const [selectedImage, setSelectedImage] = useState(null); // State to store the selected image URL
 
   useEffect(() => {
     const getUserInfo = async () => {
@@ -26,24 +29,39 @@ export const Profile = () => {
     };
 
     getUserInfo();
+    fetchImages(tokens, setAllImages);
   }, [tokens, navigate]);
+
   if (isLoading) {
     return <Spinner className="h-10 w-10" />;
   }
-  console.log("userInfo", userInfo);
+
+  // Function to clean the image URL
   function cleanPath(path) {
-    // Use a regular expression to remove any duplicate slashes
-    return path.replace(/^\/static\/uploads\//, '');
-}
-let cleanedPath = cleanPath(userInfo.avatar);
-console.log("cleandedPath",cleanedPath);
+    return path.replace(/^\/static\/uploads\//, "");
+  }
+
+  let cleanedPath = cleanPath(userInfo.avatar);
+
+  const handleImageClick = (imageUrl) => {
+    setSelectedImage(imageUrl); // Set the selected image URL
+    setModalOpen(true); // Open the modal
+  };
+
+  const handleCloseModal = () => {
+    setModalOpen(false); // Close the modal
+  };
+
   return (
     <div className="xl:pt-[5%] xl:ml-[20%] xl:w-[900px] sm:w-full sm:ml-0  sm:p-1">
       <div className="w-1/3 xl:block sm:hidden"></div>
       <div className="flex flex-col md:flex-row p-10">
         <div className="flex-shrink-0 mb-6 md:mb-0 md:mr-8">
           <Avatar
-            src={'http://localhost:5000/'+cleanedPath || "https://docs.material-tailwind.com/img/face-2.jpg"}
+            src={
+              "http://localhost:5000/" + cleanedPath ||
+              "https://docs.material-tailwind.com/img/face-2.jpg"
+            }
             alt="avatar"
             size="xxl"
           />
@@ -100,14 +118,22 @@ console.log("cleandedPath",cleanedPath);
             </Button>
           </div>
           <div className="grid grid-cols-3 gap-4 mt-4 p-2">
-            {[...Array(9)].map((_, i) => (
-              <Card key={i} className="aspect-square">
+            {allImages.map((file, i) => (
+              <Card
+                key={i}
+                className="aspect-square flex justify-center items-center cursor-pointer"
+                onClick={() =>
+                  handleImageClick(
+                    `http://localhost:5000/static/uploads/${file.name}`
+                  )
+                } // Trigger the modal on card click
+              >
                 <Img
-                  src={`https://picsum.photos/300/300`}
+                  src={`http://localhost:5000/static/uploads/${file.name}`}
                   width={300}
                   height={300}
-                  className="object-cover w-full h-full"
-                  loader={<div>Loading...</div>}
+                  className="object-cover w-full h-full "
+                  loader={<Spinner />}
                   error={<div>Error loading image</div>}
                 />
               </Card>
@@ -115,6 +141,31 @@ console.log("cleandedPath",cleanedPath);
           </div>
         </div>
       </div>
+
+      {/* Modal for Displaying Image */}
+      {modalOpen && (
+        <div
+          className="fixed inset-0 bg-gray-700 bg-opacity-50 flex justify-center items-center z-50"
+          onClick={handleCloseModal} // Close modal when the background is clicked
+        >
+          <div
+            className="bg-white p-4 rounded-lg max-w-3xl max-h-screen overflow-auto"
+            onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside the modal box
+          >
+            <button
+              onClick={handleCloseModal}
+              className="absolute top-2 right-2 text-xl text-gray-500"
+            >
+              X
+            </button>
+            <img
+              src={selectedImage}
+              alt="Selected"
+              className="w-full max-h-[80vh] object-contain"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

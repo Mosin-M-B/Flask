@@ -188,6 +188,8 @@ def upload_file(current_user):
             "file_path": file_path,
             "file_type": "image" if filename.split('.')[-1].lower() in ['png', 'jpg', 'jpeg', 'gif'] else "pdf",
             "description": description,  # Add the description field
+            "subject": subject,  # Add the subject field
+            "title": title,  # Add the title field
             
         }
 
@@ -205,10 +207,13 @@ def get_content(current_user):
     file_list = []
     for file in files:
         file_data = {
+            "_id": str(file["_id"]),  # Ensure _id is returned as a string
             "name": file["file_name"],
             "url": file["file_path"],
             "type": file["file_type"],
-            "description": file.get("description", "")  # Use .get() to provide a default value
+            "title": file.get("title", ""),
+            "subject": file.get("subject", ""),
+            "description": file.get("description", "")
         }
         file_list.append(file_data)
     return jsonify({"files": file_list}), 200
@@ -265,6 +270,28 @@ def update_profile():
     except Exception as e:
         print(f"Error: {e}")  # Log the error for debugging
         return jsonify({"error": "Failed to update profile."}), 500
+
+@app.route('/delete-file/<file_id>', methods=['DELETE'])
+@token_required
+def delete_file(current_user, file_id):
+    try:
+        # Find the file by ID
+        file = content.find_one({"_id": ObjectId(file_id), "user_id": current_user["_id"]})
+        if not file:
+            return jsonify({"msg": "File not found or not authorized"}), 404
+        
+        # Remove the file from the file system
+        file_path = file["file_path"]
+        if os.path.exists(file_path):
+            os.remove(file_path)
+        
+        # Remove the file record from the database
+        content.delete_one({"_id": ObjectId(file_id)})
+
+        return jsonify({"success": True, "msg": "File deleted successfully"}), 200
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({"msg": "Error deleting file", "error": str(e)}), 500
 
 
 

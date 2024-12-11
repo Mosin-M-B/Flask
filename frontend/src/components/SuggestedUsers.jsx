@@ -37,7 +37,7 @@ export default function SuggestedUsers() {
   console.log("cleandedPath", cleanedPath);
 
   return (
-    <div className="bg-white p-4 rounded-md border border-gray-200">
+    <div className="bg-white p-4 rounded-md border border-gray-200 fixed">
       <h2 className="font-semibold text-gray-500 mb-4">Profile</h2>
       <div className="space-y-4">
         <div className="flex items-center justify-between">

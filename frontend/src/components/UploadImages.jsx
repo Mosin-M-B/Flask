@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { ImageUp } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { fetchUserInfo, fetchImages } from "../store/userService";
+import { Button } from "@material-tailwind/react";
 
 export const UploadImages = () => {
   const [file, setFile] = useState(null);
@@ -26,7 +27,7 @@ export const UploadImages = () => {
     };
 
     getUserInfo();
-    fetchImages(token, setAllImages);  // Updated line
+    fetchImages(token, setAllImages); // Updated line
   }, [token, navigate]);
 
   const handleFileChange = (e) => {
@@ -63,7 +64,7 @@ export const UploadImages = () => {
         setDescription("");
         setSubject(""); // Reset subject
         setTitle(""); // Reset title
-        fetchImages(token, setAllImages);  // Updated line
+        fetchImages(token, setAllImages); // Updated line
       } else {
         alert(data.msg || "Error uploading file.");
       }
@@ -73,13 +74,37 @@ export const UploadImages = () => {
   };
 
   const handleDownload = (fileName) => {
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = `http://localhost:5000/static/uploads/${fileName}`;
     link.download = fileName;
-    link.target = '_blank'; // Open in a new tab or window
+    link.target = "_blank"; // Open in a new tab or window
     link.click();
   };
+  const handleDelete = async (fileId) => {
+    try {
+      const response = await fetch(
+        `http://localhost:5000/delete-file/${fileId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
+      const data = await response.json();
+      if (data.success) {
+        alert(data.msg);
+        setAllImages(allImages.filter((file) => file._id !== fileId)); // Update UI
+      } else {
+        alert(data.msg || "Error deleting file.");
+      }
+    } catch (error) {
+      console.error("Error deleting file:", error);
+    }
+  };
+  console.log(allImages);
+  
   return (
     <div className="container w-[1200px] p-4 ml-[18%] pt-[5%] flex flex-col">
       <form
@@ -105,7 +130,7 @@ export const UploadImages = () => {
                 src={URL.createObjectURL(file)}
                 alt="Uploaded"
                 className="w-fill h-full object-cover"
-              /> 
+              />
             ) : (
               <ImageUp size={48} className="text-gray-500" />
             )}
@@ -147,28 +172,45 @@ export const UploadImages = () => {
           </div>
         </div>
       </form>
-      
+
       {/* Display Uploaded Files */}
       <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {allImages.map((file, idx) => (
           <div key={idx} className="border rounded-lg p-4">
             <h2 className="font-bold">{file.title}</h2> {/* Display title */}
-            <h3 className="font-medium">{file.subject}</h3> {/* Display subject */}
-            
+            <h3 className="font-medium">{file.subject}</h3>{" "}
+            {/* Display subject */}
             {/* Check file type (image or PDF) */}
-            {file.name.endsWith('.pdf') ? (
-              <embed src={`http://localhost:5000/uploads/${file.name}`} type="application/pdf" width="100%" height="200px" />
+            {file.name.endsWith(".pdf") ? (
+              <embed
+                src={`http://localhost:5000/uploads/${file.name}`}
+                type="application/pdf"
+                width="100%"
+                height="200px"
+              />
             ) : (
-              <img src={`http://localhost:5000/static/uploads/${file.name}`}alt={file.name} className="w-full" />
+              <img
+                src={`http://localhost:5000/static/uploads/${file.name}`}
+                alt={file.name}
+                className="w-full"
+              />
             )}
-            
             <p>{file.description}</p>
-            <button 
-              onClick={() => handleDownload(file.name)} 
+            {/* <Button
+              onClick={() => handleDownload(file.name)}
               className="mt-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
             >
               Download
-            </button>
+            </Button> */}
+            <Button
+              onClick={() => {handleDelete(file._id)
+                console.log("file id",file._id);
+                
+              }} // Use the file ID for deletion
+              className="mt-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+            >
+              Delete
+            </Button>
           </div>
         ))}
       </div>

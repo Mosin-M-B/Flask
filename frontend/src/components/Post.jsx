@@ -1,5 +1,6 @@
 import { Img } from 'react-image';
 import { Heart, MessageCircle, Send, Bookmark } from 'lucide-react';
+import { Spinner } from '@material-tailwind/react';
 
 export const Posts = ({ user, image, likes, caption }) =>{
   return (
@@ -8,7 +9,7 @@ export const Posts = ({ user, image, likes, caption }) =>{
         <div className="w-8 h-8 bg-gray-200 rounded-full mr-2"></div>
         <span className="font-semibold">{user}</span>
       </div>
-      <Img src={image} alt="Post" width={400} height={400} className="w-full" />
+      <Img src={image} alt="Post" width={400} height={400} className="w-full h-[500px] flex justify-center items-center " loader={<Spinner/>}/>
       <div className="p-4">
         <div className="flex justify-between mb-2">
           <div className="flex space-x-4">
