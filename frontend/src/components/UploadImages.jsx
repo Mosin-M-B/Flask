@@ -3,6 +3,7 @@ import { ImageUp } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { fetchUserInfo, fetchImages } from "../store/userService";
 import { Button } from "@material-tailwind/react";
+import toast from "react-hot-toast";
 
 export const UploadImages = () => {
   const [file, setFile] = useState(null);
@@ -77,7 +78,7 @@ export const UploadImages = () => {
     const link = document.createElement("a");
     link.href = `http://localhost:5000/static/uploads/${fileName}`;
     link.download = fileName;
-    link.target = "_blank"; // Open in a new tab or window
+    link.target = "_blank"; 
     link.click();
   };
   const handleDelete = async (fileId) => {
@@ -94,10 +95,10 @@ export const UploadImages = () => {
 
       const data = await response.json();
       if (data.success) {
-        alert(data.msg);
+        toast.success(data.msg);
         setAllImages(allImages.filter((file) => file._id !== fileId)); // Update UI
       } else {
-        alert(data.msg || "Error deleting file.");
+        toast.error(data.msg || "Error deleting file.");
       }
     } catch (error) {
       console.error("Error deleting file:", error);
@@ -196,12 +197,13 @@ export const UploadImages = () => {
               />
             )}
             <p>{file.description}</p>
-            {/* <Button
+            <div className="w-full flex justify-between">
+              <Button
               onClick={() => handleDownload(file.name)}
               className="mt-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
             >
               Download
-            </Button> */}
+            </Button>
             <Button
               onClick={() => {handleDelete(file._id)
                 console.log("file id",file._id);
@@ -211,6 +213,8 @@ export const UploadImages = () => {
             >
               Delete
             </Button>
+            </div>
+            
           </div>
         ))}
       </div>

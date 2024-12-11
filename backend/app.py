@@ -9,7 +9,7 @@ from bson import ObjectId  # Import ObjectId to convert the user_id for MongoDB 
 import os
 from pymongo import MongoClient
 from bson.objectid import ObjectId
-
+import random
 from werkzeug.utils import secure_filename
 from werkzeug.datastructures import FileStorage
 from flask_uploads import UploadSet, configure_uploads, IMAGES
@@ -137,7 +137,7 @@ def get_user_info(current_user):
     # Return user information
     if current_user:
         avatar_url = (
-            current_user.get("avatar", "")
+            current_user.get("avatar", "default_avatar.png")
             if current_user.get("avatar", "")
             else "default_avatar.jpg"
         )  # Fallback to a default image if no avatar is set
@@ -151,7 +151,7 @@ def get_user_info(current_user):
                 "website": current_user.get("website", ""),
                 "gender": current_user.get("gender", ""),
                 "fullName": current_user.get("fullName", ""),
-                "avatar": f"/static/uploads/{avatar_url}"
+                "avatar": f"/static/uploads/{avatar_url}" 
             }
         }), 200
 
@@ -213,7 +213,8 @@ def get_content(current_user):
             "type": file["file_type"],
             "title": file.get("title", ""),
             "subject": file.get("subject", ""),
-            "description": file.get("description", "")
+            "description": file.get("description", ""),
+            "avatar": file.get("avatar", "default_avatar.png") 
         }
         file_list.append(file_data)
     return jsonify({"files": file_list}), 200
@@ -292,6 +293,92 @@ def delete_file(current_user, file_id):
     except Exception as e:
         print(f"Error: {e}")
         return jsonify({"msg": "Error deleting file", "error": str(e)}), 500
+
+
+    
+
+@app.route('/random-images', methods=['GET'])
+def get_random_images():
+    try:
+        # Fetch all images from the content collection
+        images = list(content.find({"file_type": "image"}))  # Filter only image files
+        
+        # Check if there are at least 10 images
+        if len(images) < 10:
+            return jsonify({"msg": "Not enough images in the database."}), 404
+        
+        # Select 10 random images
+        random_images = random.sample(images, 10)
+
+        # Format the response with image data and user info
+        image_data = []
+        for image in random_images:
+            user = users.find_one({"_id": ObjectId(image["user_id"])})
+            user_avatar = user.get("avatar", "default_avatar.jpg")
+            image_data.append({
+                "id": str(image["_id"]),
+                "image": f"/static/uploads/{image['file_name']}",
+                "caption": image.get("description", ""),
+                "likes": random.randint(1, 100),  # Mock data for likes
+                "user": user.get("username", ""),
+                "avatar": f"/static/uploads/{user_avatar}"  # User's avatar
+            })
+
+        return jsonify({"posts": image_data}), 200
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({"msg": "Error fetching random images", "error": str(e)}), 500
+
+
+
+@app.route('/user-profile/<username>', methods=['GET'])
+def get_user_profile(username):
+    try:
+        # Fetch the user from the database by username
+        user = users.find_one({"username": username})
+
+        if not user:
+            return jsonify({"msg": "User not found!"}), 404
+
+        # Fetch the content (posts/images) uploaded by the user
+        user_content = content.find({"user_id": user["_id"]})
+
+        # Prepare user data
+        user_data = {
+            "username": user["username"],
+            "email": user["email"],
+            "fullName": user.get("fullName", ""),
+            "bio": user.get("bio", ""),
+            "avatar": user.get("avatar", "default_avatar.png")  # Default avatar if not set
+        }
+
+        # Prepare the content data
+        content_data = []
+        for post in user_content:
+            content_data.append({
+                "image": post["file_path"],  # Assuming file_path is the image URL
+                "title": post.get("title", ""),
+                "description": post.get("description", ""),
+            })
+
+        # Return user and content data
+        return jsonify({
+            "user": user_data,
+            "content": content_data
+        }), 200
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({"msg": "Error fetching user profile."}), 500
+
+
+
+
+
+
+
+
 
 
 

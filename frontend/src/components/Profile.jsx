@@ -38,30 +38,30 @@ export const Profile = () => {
 
   // Function to clean the image URL
   function cleanPath(path) {
-    return path.replace(/^\/static\/uploads\//, "");
+    return path.replace(/^\/static\/uploads\//, '');
   }
 
   let cleanedPath = cleanPath(userInfo.avatar);
 
   const handleImageClick = (imageUrl) => {
-    setSelectedImage(imageUrl); // Set the selected image URL
-    setModalOpen(true); // Open the modal
+    setSelectedImage(imageUrl);  // Set the selected image URL
+    setModalOpen(true);  // Open the modal
   };
 
   const handleCloseModal = () => {
-    setModalOpen(false); // Close the modal
+    setModalOpen(false);  // Close the modal
   };
-
+  console.log(userInfo);
+  console.log("cleaned path",cleanedPath);
+  
+  
   return (
     <div className="xl:pt-[5%] xl:ml-[20%] xl:w-[900px] sm:w-full sm:ml-0  sm:p-1">
       <div className="w-1/3 xl:block sm:hidden"></div>
       <div className="flex flex-col md:flex-row p-10">
         <div className="flex-shrink-0 mb-6 md:mb-0 md:mr-8">
           <Avatar
-            src={
-              "http://localhost:5000/" + cleanedPath ||
-              "https://docs.material-tailwind.com/img/face-2.jpg"
-            }
+            src={ 'http://localhost:5000/'+ cleanedPath || "https://docs.material-tailwind.com/img/face-2.jpg"}
             alt="avatar"
             size="xxl"
           />
@@ -83,7 +83,7 @@ export const Profile = () => {
           </div>
           <div className="flex mb-4">
             <span className="mr-6">
-              <strong>100</strong> posts
+              <strong>{allImages.length}</strong> posts
             </span>
             <span className="mr-6">
               <strong>1,234</strong> followers
@@ -119,14 +119,10 @@ export const Profile = () => {
           </div>
           <div className="grid grid-cols-3 gap-4 mt-4 p-2">
             {allImages.map((file, i) => (
-              <Card
-                key={i}
+              <Card 
+                key={i} 
                 className="aspect-square flex justify-center items-center cursor-pointer"
-                onClick={() =>
-                  handleImageClick(
-                    `http://localhost:5000/static/uploads/${file.name}`
-                  )
-                } // Trigger the modal on card click
+                onClick={() => handleImageClick(`http://localhost:5000/static/uploads/${file.name}`)}  // Trigger the modal on card click
               >
                 <Img
                   src={`http://localhost:5000/static/uploads/${file.name}`}
@@ -144,27 +140,28 @@ export const Profile = () => {
 
       {/* Modal for Displaying Image */}
       {modalOpen && (
-        <div
-          className="fixed inset-0 bg-gray-700 bg-opacity-50 flex justify-center items-center z-50"
-          onClick={handleCloseModal} // Close modal when the background is clicked
+        <div 
+        className="fixed inset-0 bg-gray-700 bg-opacity-50 flex justify-center items-center z-50"
+        onClick={handleCloseModal}  // Close modal when the background is clicked
+      >
+        <div 
+          className="bg-white p-4 rounded-lg max-w-3xl max-h-screen overflow-auto"
+          onClick={(e) => e.stopPropagation()}  // Prevent closing when clicking inside the modal box
         >
-          <div
-            className="bg-white p-4 rounded-lg max-w-3xl max-h-screen overflow-auto"
-            onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside the modal box
+          <button 
+            onClick={handleCloseModal} 
+            className="absolute top-2 right-2 text-xl text-gray-500"
           >
-            <button
-              onClick={handleCloseModal}
-              className="absolute top-2 right-2 text-xl text-gray-500"
-            >
-              X
-            </button>
-            <img
-              src={selectedImage}
-              alt="Selected"
-              className="w-full max-h-[80vh] object-contain"
-            />
-          </div>
+            X
+          </button>
+          <img
+            src={selectedImage}
+            alt="Selected"
+            className="w-full max-h-[80vh] object-contain"
+          />
         </div>
+      </div>
+      
       )}
     </div>
   );

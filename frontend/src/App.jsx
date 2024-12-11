@@ -11,7 +11,8 @@ import {Header} from "./components/Header";
 import {Nav} from "./components/Navbar";
 import {EditProfile} from "./components/Editprofile";
 import { UploadImages } from "./components/UploadImages";
-import { Home } from "lucide-react";
+
+import { OtherProfile } from "./components/OtherProfile";
 
 function App() {
   return (
@@ -44,6 +45,7 @@ function AppContent() {
         <Route path="/account" element={<Profile />} />
         <Route path="/create" element={<UploadImages />} />
         <Route path="/account/edit-profile" element={<EditProfile/>} />
+        <Route path="/profile/:username" element={<OtherProfile />} /> 
       </Routes>
     </>
   );
