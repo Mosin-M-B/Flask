@@ -8,7 +8,7 @@ import {
 import Login from "./Login";
 import Signup from "./Signup";
 import { useEffect, useState } from "react";
-import Logo from "./Logo";
+
 
 export function Tabss() {
   const [type, setType] = useState("login");
@@ -38,12 +38,10 @@ export function Tabss() {
           <TabPanel value="login" className="flex gap-4 items-center">
             {/* Pass setType as a prop to Login */}
             <Login setType={setType} />
-            <Logo/>
           </TabPanel>
           <TabPanel value="signup" className="flex gap-4 items-center">
             {/* Pass setType as a prop to Signup */}
             <Signup setType={setType} />
-            <Logo/>
           </TabPanel>
         </TabsBody>
       </Tabs>

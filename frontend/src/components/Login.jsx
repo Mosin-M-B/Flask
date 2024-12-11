@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import  { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Input } from "@material-tailwind/react";
 import { handleLogin } from "../store/userService";
 
-const Login = ({ setType }) => {
+const Login = () => {
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");

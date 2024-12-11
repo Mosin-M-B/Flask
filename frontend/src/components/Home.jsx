@@ -95,7 +95,7 @@ const Home = () => {
 
 
   return (
-    <div className="p-8">
+    <div className="pt-[15%] ml-[20%] ">
       <Nav/>
       <h2 className="text-2xl font-bold mb-4">Welcome to the Home Page</h2>
 

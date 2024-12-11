@@ -10,6 +10,8 @@ import {Sidebar} from "./components/Sidebar";
 import {Header} from "./components/Header";
 import {Nav} from "./components/Navbar";
 import {EditProfile} from "./components/Editprofile";
+import { UploadImages } from "./components/UploadImages";
+import { Home } from "lucide-react";
 
 function App() {
   return (
@@ -40,6 +42,7 @@ function AppContent() {
         <Route path="/" element={<Tabss />} />
         <Route path="/home" element={<Home2 />} />
         <Route path="/account" element={<Profile />} />
+        <Route path="/create" element={<UploadImages />} />
         <Route path="/account/edit-profile" element={<EditProfile/>} />
       </Routes>
     </>

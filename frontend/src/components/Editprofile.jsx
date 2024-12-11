@@ -8,6 +8,7 @@ import {
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchUserInfo, updateUserProfile } from "../store/userService";
+import toast from "react-hot-toast";
 
 export const EditProfile = () => {
   const [userInfo, setUserInfo] = useState(null);
@@ -25,6 +26,8 @@ export const EditProfile = () => {
       }
 
       const user = await fetchUserInfo(tokens, navigate);
+      console.log(user);
+      
       if (user) setUserInfo(user);
       setIsLoading(false);
     };
@@ -65,7 +68,17 @@ export const EditProfile = () => {
   if (isLoading) {
     return <div>Loading...</div>;
   }
+  function cleanPath(path) {
+    // Use a regular expression to remove any duplicate slashes
+    return path.replace(/^\/static\/uploads\//, '');
+}
 
+// Example usage:
+
+let cleanedPath = cleanPath(userInfo.avatar);
+console.log("cleandedPath",cleanedPath);
+
+  
   return (
     <div className="sm:pt-16">
       <Card className="w-full max-w-2xl mx-auto p-6">
@@ -73,7 +86,7 @@ export const EditProfile = () => {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="flex items-center space-x-4">
-            <Avatar src={userInfo?.avatar || "https://docs.material-tailwind.com/img/face-2.jpg"} alt="avatar" width={96} height={96}/>
+            <Avatar src={'http://localhost:5000/'+cleanedPath || "https://docs.material-tailwind.com/img/face-2.jpg"} alt="avatar" width={96} height={96}/>
             <div>
               <label
                 htmlFor="avatar"

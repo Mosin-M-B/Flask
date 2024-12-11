@@ -1,30 +1,68 @@
-import { Button } from "@material-tailwind/react"
+import { Avatar, Button } from "@material-tailwind/react";
+import { fetchUserInfo } from "../store/userService";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 export default function SuggestedUsers() {
+  const [userInfo, setUserInfo] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const tokens = localStorage.getItem("token");
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const getUserInfo = async () => {
+      setIsLoading(true);
+      if (!tokens) {
+        navigate("/");
+        return;
+      }
+
+      const user = await fetchUserInfo(tokens, navigate);
+      if (user) setUserInfo(user);
+      setIsLoading(false);
+    };
+
+    getUserInfo();
+  }, [tokens, navigate]);
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+  console.log("userInfo", userInfo);
+
   // This would typically come from an API
-  const suggestedUsers = [
-    { id: 1, username: 'user1', fullName: 'User One' },
-    { id: 2, username: 'user2', fullName: 'User Two' },
-    { id: 3, username: 'user3', fullName: 'User Three' },
-  ]
+  function cleanPath(path) {
+    // Use a regular expression to remove any duplicate slashes
+    return path.replace(/^\/static\/uploads\//, "");
+  }
+  let cleanedPath = cleanPath(userInfo.avatar);
+  console.log("cleandedPath", cleanedPath);
 
   return (
     <div className="bg-white p-4 rounded-md border border-gray-200">
-      <h2 className="font-semibold text-gray-500 mb-4">Suggested for you</h2>
+      <h2 className="font-semibold text-gray-500 mb-4">Profile</h2>
       <div className="space-y-4">
-        {suggestedUsers.map(user => (
-          <div key={user.id} className="flex items-center justify-between">
-            <div className="flex items-center">
-              <div className="w-8 h-8 bg-gray-200 rounded-full mr-2"></div>
-              <div>
-                <p className="font-semibold">{user.username}</p>
-                <p className="text-sm text-gray-500">{user.fullName}</p>
-              </div>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center">
+            <Avatar
+              src={'http://localhost:5000/'+cleanedPath || "https://docs.material-tailwind.com/img/face-2.jpg"}
+              alt={userInfo.username}
+              size="xl"
+              className="mr-4"
+            />
+            <div>
+              <p className="font-semibold">{userInfo.username}</p>
+              <p className="text-sm text-gray-500">{userInfo.fullName}</p>
             </div>
-            <Button variant="link" color="white" className="hover:text-white hover:bg-black">Follow</Button>
           </div>
-        ))}
+          <Button
+            variant="link"
+            color="white"
+            className="hover:text-white hover:bg-black"
+            onClick={() => navigate("/account")}
+          >
+            Profile
+          </Button>
+        </div>
       </div>
     </div>
-  )
+  );
 }
-

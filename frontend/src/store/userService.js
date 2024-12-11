@@ -1,7 +1,6 @@
 // userService.js
 import axios from "axios";
 import toast from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
 
 
 const API_BASE_URL = "http://localhost:5000";
@@ -11,14 +10,16 @@ export const fetchUserInfo = async (token, navigate) => {
     const response = await axios.get(`${API_BASE_URL}/user-info`, {
       headers: { Authorization: `Bearer ${token}` },
     });
-    if (response.data.user) {
-      return response.data.user;
+
+    if (response.status === 200 && response.data.user) {
+      return response.data.user; // Returns user information including avatar
     } else {
       toast.error("User information not found.");
       navigate("/");
       return null;
     }
   } catch (error) {
+    console.error("Error fetching user info:", error.response?.data || error.message);
     toast.error("Failed to fetch user info.");
     navigate("/");
     return null;
@@ -33,6 +34,8 @@ export const updateUserProfile = async (formData, token) => {
         "Content-Type": "multipart/form-data",
       },
     });
+    console.log(response.data);
+    
     toast.success(response.data.msg);
     return true;
   } catch (error) {
@@ -99,3 +102,6 @@ export const handleLogin = async ({ email, username, password, navigate }) => {
       });
     }
   };
+
+
+ 

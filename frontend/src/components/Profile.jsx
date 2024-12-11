@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import { useEffect, useState } from "react";
+
 import { Avatar, Button, Card } from "@material-tailwind/react";
 import { Grid, MessageCircle, Settings } from "lucide-react";
 import { Img } from "react-image";
 import { useNavigate } from "react-router-dom";
-import toast from "react-hot-toast";
+
 import { fetchUserInfo } from "../store/userService";
 export const Profile = () => {
   const [userInfo, setUserInfo] = useState(null);
@@ -31,14 +31,19 @@ export const Profile = () => {
     return <div>Loading...</div>;
   }
   console.log("userInfo", userInfo);
-
+  function cleanPath(path) {
+    // Use a regular expression to remove any duplicate slashes
+    return path.replace(/^\/static\/uploads\//, '');
+}
+let cleanedPath = cleanPath(userInfo.avatar);
+console.log("cleandedPath",cleanedPath);
   return (
     <div className="xl:pt-[5%] xl:ml-[20%] xl:w-[900px] sm:w-full sm:ml-0  sm:p-1">
       <div className="w-1/3 xl:block sm:hidden"></div>
       <div className="flex flex-col md:flex-row p-10">
         <div className="flex-shrink-0 mb-6 md:mb-0 md:mr-8">
           <Avatar
-            src="https://docs.material-tailwind.com/img/face-2.jpg"
+            src={'http://localhost:5000/'+cleanedPath || "https://docs.material-tailwind.com/img/face-2.jpg"}
             alt="avatar"
             size="xxl"
           />

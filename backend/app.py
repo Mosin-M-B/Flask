@@ -30,7 +30,7 @@ db.users.create_index("email", unique=True)
 db.users.create_index("username", unique=True)
 
 
-UPLOAD_FOLDER = 'uploads'
+UPLOAD_FOLDER = 'static/uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif', 'pdf'}
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -136,6 +136,12 @@ def login():
 def get_user_info(current_user):
     # Return user information
     if current_user:
+        avatar_url = (
+            current_user.get("avatar", "")
+            if current_user.get("avatar", "")
+            else "default_avatar.jpg"
+        )  # Fallback to a default image if no avatar is set
+
         return jsonify({
             "user": {
                 "username": current_user.get("username", ""),
@@ -145,8 +151,10 @@ def get_user_info(current_user):
                 "website": current_user.get("website", ""),
                 "gender": current_user.get("gender", ""),
                 "fullName": current_user.get("fullName", ""),
+                "avatar": f"/static/uploads/{avatar_url}"
             }
         }), 200
+
     return jsonify({"msg": "User not found!"}), 404
 
 def allowed_file(filename):
@@ -158,12 +166,18 @@ def allowed_file(filename):
 def upload_file(current_user):
     if 'file' not in request.files:
         return jsonify({"msg": "No file part"}), 400
-    file = request.files['file']
     
+    file = request.files['file']
+    description = request.form.get('description', '')  # Extract the description field
+    title = request.form.get('title', '')
+    subject = request.form.get('subject', '')
+    
+    print("description",description)
     if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)  # Now this should work
+        filename = secure_filename(file.filename)
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(file_path)
+        
 
         # Insert file information into the database
         file_data = {
@@ -172,12 +186,15 @@ def upload_file(current_user):
             "email": current_user['email'],
             "file_name": filename,
             "file_path": file_path,
-            "file_type": "image" if filename.split('.')[-1].lower() in ['png', 'jpg', 'jpeg', 'gif'] else "pdf"
+            "file_type": "image" if filename.split('.')[-1].lower() in ['png', 'jpg', 'jpeg', 'gif'] else "pdf",
+            "description": description,  # Add the description field
+            
         }
 
         content.insert_one(file_data)
 
         return jsonify({"success": True, "msg": "File uploaded successfully"}), 200
+    
     return jsonify({"msg": "Invalid file type"}), 400
 
 # Route to get uploaded files
@@ -190,7 +207,8 @@ def get_content(current_user):
         file_data = {
             "name": file["file_name"],
             "url": file["file_path"],
-            "type": file["file_type"]
+            "type": file["file_type"],
+            "description": file.get("description", "")  # Use .get() to provide a default value
         }
         file_list.append(file_data)
     return jsonify({"files": file_list}), 200
@@ -206,41 +224,49 @@ def update_profile():
         email = request.form.get('email')
         phone = request.form.get('phone')
         gender = request.form.get('gender')
-        
+        avatar = request.files.get('file')  # Avatar file upload
+
         print(username, full_name, website, bio, email, phone, gender)
 
+        # Check if user exists
         existing_user = users.find_one({"username": username})
 
         if not existing_user:
-            return jsonify({"error": "User name is alrady taken."}), 404
+            return jsonify({"error": "Username is already taken."}), 404
 
-        # Update the user's profile
-        users.update_one(
-            {"username": username},
-            {
-                "$set": {
-                    "fullName": full_name,
-                    "website": website,
-                    "bio": bio,
-                    "email": email,
-                    "phone": phone,
-                    "gender": gender
-                }
-            }
-        )
         # Handle file upload (avatar)
-        avatar = request.files.get('file')  # Get the uploaded file
-
+        avatar_path = None
         if avatar and allowed_file(avatar.filename):
             filename = secure_filename(avatar.filename)  # Secure the filename
-            avatar.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))  # Save the file
+            avatar_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)  # Absolute path
+            avatar.save(avatar_path)  # Save file to the upload folder
+            avatar_path = f"{UPLOAD_FOLDER}/{filename}"  # Convert to relative path
 
+        # Update the user's profile
+        update_data = {
+            "fullName": full_name,
+            "website": website,
+            "bio": bio,
+            "email": email,
+            "phone": phone,
+            "gender": gender,
+        }
 
-        return jsonify({"msg": "Profile updated successfully!"}), 200
+        if avatar_path:  # Only update avatar if a new one is uploaded
+            update_data["avatar"] = avatar_path
+
+        users.update_one(
+            {"username": username},
+            {"$set": update_data}
+        )
+
+        return jsonify({"msg": "Profile updated successfully!", "avatar": avatar_path}), 200
 
     except Exception as e:
         print(f"Error: {e}")  # Log the error for debugging
         return jsonify({"error": "Failed to update profile."}), 500
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
