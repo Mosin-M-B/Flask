@@ -1,7 +1,5 @@
-// userService.js
 import axios from "axios";
 import toast from "react-hot-toast";
-
 
 const API_BASE_URL = "http://localhost:5000";
 
@@ -44,55 +42,58 @@ export const updateUserProfile = async (formData, token) => {
   }
 };
 
-export const handleLogout = (navigate,setToken) => {
-    localStorage.removeItem("token");
-    setToken("");
-    toast.success("Logged out successfully");
-    navigate("/");
-  };
+export const fetchImages = async (token, setAllImages) => {
+  try {
+    const response = await fetch("http://localhost:5000/get-content", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const data = await response.json();
+    setAllImages(data.files || []); // Adjusted to match the API's response
+  } catch (error) {
+    console.error("Error fetching images:", error);
+  }
+};
 
+export const handleLogout = (navigate, setToken) => {
+  localStorage.removeItem("token");
+  setToken("");
+  toast.success("Logged out successfully");
+  navigate("/");
+};
 
 export const handleLogin = async ({ email, username, password, navigate }) => {
-    if (!email && !username) {
-      toast.error("Email or Username is required!");
-      return;
-    }
-    if (!password) {
-      toast.error("Password is required!");
-      return;
-    }
-  
-    try {
-      const response = await axios.post("http://localhost:5000/login", {
-        username,
-        email,
-        password,
+  if (!email && !username) {
+    toast.error("Email or Username is required!");
+    return;
+  }
+  if (!password) {
+    toast.error("Password is required!");
+    return;
+  }
+
+  try {
+    const response = await axios.post("http://localhost:5000/login", {
+      username,
+      email,
+      password,
+    });
+
+    if (response.data.success) {
+      // Store the token in local storage
+      localStorage.setItem("token", response.data.token);
+      navigate("/home");
+      toast.success("Account Logged In Successfully !!", {
+        icon: "🎉",
+        style: {
+          borderRadius: "10px",
+          background: "#333",
+          color: "#fff",
+        },
       });
-  
-      if (response.data.success) {
-        // Store the token in local storage
-        localStorage.setItem("token", response.data.token);
-        navigate("/home");
-        toast.success("Account Logged In Successfully !!", {
-          icon: "🎉",
-          style: {
-            borderRadius: "10px",
-            background: "#333",
-            color: "#fff",
-          },
-        });
-      } else {
-        toast.error("Invalid credentials", {
-          icon: "😵‍💫",
-          style: {
-            borderRadius: "10px",
-            background: "#333",
-            color: "#fff",
-          },
-        });
-      }
-    } catch (error) {
-      toast.error("Login failed", {
+    } else {
+      toast.error("Invalid credentials", {
         icon: "😵‍💫",
         style: {
           borderRadius: "10px",
@@ -101,7 +102,14 @@ export const handleLogin = async ({ email, username, password, navigate }) => {
         },
       });
     }
-  };
-
-
- 
+  } catch (error) {
+    toast.error("Login failed", {
+      icon: "😵‍💫",
+      style: {
+        borderRadius: "10px",
+        background: "#333",
+        color: "#fff",
+      },
+    });
+  }
+};

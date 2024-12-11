@@ -11,6 +11,7 @@ import { fetchUserInfo, updateUserProfile } from "../store/userService";
 import toast from "react-hot-toast";
 
 export const EditProfile = () => {
+
   const [userInfo, setUserInfo] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [avatar, setAvatar] = useState(null);
@@ -178,7 +179,7 @@ console.log("cleandedPath",cleanedPath);
             </div>
           </div>
 
-          <Button type="submit" className="w-full">
+          <Button type="submit" className="w-full" onClick={()=>navigate("/account" )} >
             UPDATE
           </Button>
         </form>

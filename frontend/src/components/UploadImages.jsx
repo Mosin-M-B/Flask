@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { ImageUp } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { fetchUserInfo } from "../store/userService";
+import { fetchUserInfo, fetchImages } from "../store/userService";
 
 export const UploadImages = () => {
   const [file, setFile] = useState(null);
@@ -21,12 +21,12 @@ export const UploadImages = () => {
       }
       const user = await fetchUserInfo(token, navigate);
       console.log(user.avatar);
-      
+
       if (user) setUserInfo(user);
     };
 
     getUserInfo();
-    fetchImages();
+    fetchImages(token, setAllImages);  // Updated line
   }, [token, navigate]);
 
   const handleFileChange = (e) => {
@@ -46,8 +46,7 @@ export const UploadImages = () => {
     formData.append("description", description);
     formData.append("subject", subject); // Add subject to formData
     formData.append("title", title); // Add title to formData
-    console.log(formData);
-    
+    console.log(file);
 
     try {
       const response = await fetch("http://localhost:5000/upload", {
@@ -64,7 +63,7 @@ export const UploadImages = () => {
         setDescription("");
         setSubject(""); // Reset subject
         setTitle(""); // Reset title
-        fetchImages();
+        fetchImages(token, setAllImages);  // Updated line
       } else {
         alert(data.msg || "Error uploading file.");
       }
@@ -73,21 +72,6 @@ export const UploadImages = () => {
     }
   };
 
-  const fetchImages = async () => {
-    try {
-      const response = await fetch("http://localhost:5000/get-content", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      const data = await response.json();
-      setAllImages(data.files || []); // Adjusted to match the API's response
-    } catch (error) {
-      console.error("Error fetching images:", error);
-    }
-  };
-
-  // Function to handle download of files
   const handleDownload = (fileName) => {
     const link = document.createElement('a');
     link.href = `http://localhost:5000/static/uploads/${fileName}`;
@@ -117,7 +101,11 @@ export const UploadImages = () => {
               required
             />
             {file ? (
-              <p className="text-sm">{file.name}</p>  
+              <img
+                src={URL.createObjectURL(file)}
+                alt="Uploaded"
+                className="w-fill h-full object-cover"
+              /> 
             ) : (
               <ImageUp size={48} className="text-gray-500" />
             )}
@@ -159,7 +147,7 @@ export const UploadImages = () => {
           </div>
         </div>
       </form>
-
+      
       {/* Display Uploaded Files */}
       <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {allImages.map((file, idx) => (

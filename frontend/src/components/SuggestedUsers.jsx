@@ -1,4 +1,4 @@
-import { Avatar, Button } from "@material-tailwind/react";
+import { Avatar, Button, Spinner } from "@material-tailwind/react";
 import { fetchUserInfo } from "../store/userService";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -24,7 +24,7 @@ export default function SuggestedUsers() {
     getUserInfo();
   }, [tokens, navigate]);
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <Spinner className="h-10 w-10" />;
   }
   console.log("userInfo", userInfo);
 

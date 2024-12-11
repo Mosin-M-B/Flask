@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import { Avatar, Button, Card } from "@material-tailwind/react";
+import { Avatar, Button, Card, Spinner } from "@material-tailwind/react";
 import { Grid, MessageCircle, Settings } from "lucide-react";
 import { Img } from "react-image";
 import { useNavigate } from "react-router-dom";
@@ -28,7 +28,7 @@ export const Profile = () => {
     getUserInfo();
   }, [tokens, navigate]);
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <Spinner className="h-10 w-10" />;
   }
   console.log("userInfo", userInfo);
   function cleanPath(path) {
