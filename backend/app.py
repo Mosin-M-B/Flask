@@ -13,6 +13,19 @@ import random
 from werkzeug.utils import secure_filename
 from werkzeug.datastructures import FileStorage
 from flask_uploads import UploadSet, configure_uploads, IMAGES
+
+
+
+from flask import Flask, request, jsonify
+from functools import wraps
+import bcrypt
+import jwt
+from datetime import datetime, timedelta
+from pymongo import MongoClient
+from bson.objectid import ObjectId
+import config
+
+
 app = Flask(__name__)
 CORS(app)
 bcrypt = Bcrypt(app)
@@ -35,19 +48,10 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif', 'pdf'}
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-
-
-
-
-
-
-
-
-
-
-
-
 # Decorator to check if the user is authenticated
+
+
+# Token required decorator
 def token_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -62,9 +66,6 @@ def token_required(f):
             return jsonify({"msg": "Token is invalid!"}), 403
         return f(current_user, *args, **kwargs)
     return decorated_function
-
-
-
 
 @app.route('/signup', methods=['POST'])
 def signup():
@@ -117,13 +118,17 @@ def login():
         # Check if the password matches (hashed password comparison)
         if bcrypt.check_password_hash(user['password'], data['password']):
             # Create a JWT token with the user's id (or any other info you want to include)
-            token = jwt.encode(
-                {"user_id": str(user['_id']), "exp": datetime.utcnow() + timedelta(hours=1)},  # expires in 1 hour
-                config.JWT_SECRET,  # Secret key from your config
-                algorithm="HS256"
-            )
-            print(token)
-            return jsonify({"success": True, "msg": "Login successful", "token": token}), 200
+            try:
+                token = jwt.encode(
+                    {"user_id": str(user['_id']), "exp": datetime.utcnow() + timedelta(hours=1)},  # expires in 1 hour
+                    config.JWT_SECRET,  # Secret key from your config
+                    algorithm="HS256"
+                )
+                print(f"JWT Token: {token}")  # Print the generated token
+                return jsonify({"success": True, "msg": "Login successful", "token": token}), 200
+            except Exception as e:
+                print(f"Error generating token: {str(e)}")
+                return jsonify({"success": False, "msg": "Error generating token"}), 500
         else:
             # Invalid password
             return jsonify({"success": False, "msg": "Invalid credentials"}), 401
@@ -371,15 +376,6 @@ def get_user_profile(username):
     except Exception as e:
         print(f"Error: {e}")
         return jsonify({"msg": "Error fetching user profile."}), 500
-
-
-
-
-
-
-
-
-
 
 
 if __name__ == '__main__':

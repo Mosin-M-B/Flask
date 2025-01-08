@@ -184,7 +184,7 @@ export const UploadImages = () => {
             {/* Check file type (image or PDF) */}
             {file.name.endsWith(".pdf") ? (
               <embed
-                src={`http://localhost:5000/uploads/${file.name}`}
+                src={`http://localhost:5000/static/uploads/${file.name}`}
                 type="application/pdf"
                 width="100%"
                 height="200px"

@@ -124,14 +124,20 @@ export const Profile = () => {
                 className="aspect-square flex justify-center items-center cursor-pointer"
                 onClick={() => handleImageClick(`http://localhost:5000/static/uploads/${file.name}`)}  // Trigger the modal on card click
               >
-                <Img
-                  src={`http://localhost:5000/static/uploads/${file.name}`}
-                  width={300}
-                  height={300}
-                  className="object-cover w-full h-full "
-                  loader={<Spinner />}
-                  error={<div>Error loading image</div>}
-                />
+               {file.name.endsWith(".pdf") ? (
+              <embed
+                src={`http://localhost:5000/static/uploads/${file.name}`}
+                type="application/pdf"
+                width="100%"
+                height="200px"
+              />
+            ) : (
+              <img
+                src={`http://localhost:5000/static/uploads/${file.name}`}
+                alt={file.name}
+                className="w-full"
+              />
+            )}
               </Card>
             ))}
           </div>
